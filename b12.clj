@@ -9,6 +9,10 @@
     (defonce master-rate-bus (control-bus))
     (defonce root-trg-bus (control-bus)) ;; global metronome pulse
     (defonce root-cnt-bus (control-bus)) ;; global metronome count
+
+    (defonce b1st_beat-trg-bus (control-bus)) ;; beat pulse (fraction of root)
+    (defonce b1st_beat-cnt-bus (control-bus)) ;; beat count
+
     (defonce b4th_beat-trg-bus (control-bus)) ;; beat pulse (fraction of root)
     (defonce b4th_beat-cnt-bus (control-bus)) ;; beat count
 
@@ -21,6 +25,7 @@
     (defonce b32th_beat-trg-bus (control-bus)) ;; beat pulse (fraction of root)
     (defonce b32th_beat-cnt-bus (control-bus)) ;; beat count
 
+    (def FRACTION_1 "Number of global pulses per beat" 1)
     (def FRACTION_4 "Number of global pulses per beat" 4)
     (def FRACTION_8 "Number of global pulses per beat" 8)
     (def FRACTION_16 "Number of global pulses per beat" 16)
@@ -34,6 +39,12 @@
 
     (defsynth root-cnt []
       (out:kr root-cnt-bus (pulse-count:kr (in:kr root-trg-bus))))
+
+    (defsynth b1st_beat-trg [div FRACTION_1]
+      (out:kr b1st_beat-trg-bus (pulse-divider (in:kr root-trg-bus) div)))
+
+    (defsynth b1st_beat-cnt []
+      (out:kr b1st_beat-cnt-bus (pulse-count (in:kr b1st_beat-trg-bus))))
 
     (defsynth b4th_beat-trg [div FRACTION_4]
       (out:kr b4th_beat-trg-bus (pulse-divider (in:kr root-trg-bus) div)))
@@ -266,12 +277,17 @@
 (ctl k1 :amp 0.75)
 
 (ctl k1 :freq 90 :amp 1 :amp_output 0.5
-     :v1 0.01 :v2 0.001 :v3 0.001
+     :v1 0.1 :v2 0.01 :v3 0.01
      :c1 -20 :c2 -8 :c3 -8
-     :d1 1 :d2 1 :d3 1
+     :d1 2 :d2 2 :d3 0.5
      :f1 80 :f2 30 :f3 80)
 
 
+(ctl k1 :freq 40 :amp 1 :amp_output 1
+     :v1 0.1 :v2 0.01 :v3 0.01
+     :c1 -20 :c2 -8 :c3 -8
+     :d1 2 :d2 2 :d3 0.5
+     :f1 20 :f2 20 :f3 20)
 
 (kill k1)
 
@@ -279,9 +295,20 @@
                                         ;Snare
 
  (buffer-write! buffer-32-1 [1 2 0 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
+                             1 0 0 0 2 0 0 0
+                             1 0 0 0 3 0 0 0
                              1 0 0 0 1 0 0 0])
+
+ (buffer-write! buffer-32-1 [0.1 0 0 0 0 0 0 0
+                             0.1 0 0 0 0 0 0 0
+                             0.1 0 0 0 0 0 0 0
+                             0.1 0 0 0 0 0 0 0])
+
+
+ (buffer-write! buffer-32-1 [1 0 0 0 1 0 0 0
+                             4 0 0 0 2 0 0 0
+                             5 0 0 0 3 0 0 0
+                             5 0 0 0 3 0 0 0])
 
 
 (def snareBufReader (beatBufferReader [:tail early-g]
@@ -289,6 +316,8 @@
                          :in-trg-bus b4th_beat-trg-bus
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus2 ))
+
+(ctl snareBufReader :del 0.0)
 
 (kill snareBufReader)
 
@@ -299,12 +328,13 @@
                    out-bus 0
                    attack 0.01
                    sustain 0.01
-                   release 0.1]
+                   release 0.1
+                   cutoff 2000]
     (let [pls (in:kr beat-control-bus)
           adj (max 1 pls)
           env (env-gen (lin attack sustain (* adj release) (* 0.1 adj)) :gate pls)
           snare (* 3 (pink-noise) (apply + (* (decay env [attack release]) [1 release])))
-          snare (+ snare (bpf (* 4 snare) 2000))
+          snare (+ snare (bpf (* 4 snare) cutoff))
           snare (clip2 snare 1)]
       (out out-bus (pan2 (*  amp snare env)))))
 
@@ -312,15 +342,23 @@
 
 (ctl snare1 :amp 0.05 :attack 0.01 :sustain 0.02 :release 0.1 )
 
+(ctl snare1 :amp 0.25 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 100)
+
 (kill snare)
 
 (pp-node-tree)
 
                                         ;tb303
 
-(buffer-write! buffer-32-2 0 (map note->hz (chord :C3 :minor)))
+(buffer-write! buffer-32-2 0 (map note->hz (chord :C2 :minor)))
 
-(buffer-write! buffer-32-2 4 (map note->hz (chord :C3 :7sus2)))
+(buffer-write! buffer-32-2 4 (map note->hz (chord :C0 :7sus2)))
+
+(buffer-write! buffer-32-2 8 (map note->hz (chord :C1 :7sus2)))
+
+(buffer-write! buffer-32-2 12 (map note->hz (chord :C0 :7sus2)))
+
+(buffer-write! buffer-32-2 16 (map note->hz (chord :C5 :7sus2)))
 
 
 (buffer-write! buffer-32-3 [0 0 0 0 1 0 0 0
@@ -328,10 +366,27 @@
                             1 0 0 0 1 0 0 0
                             0 0 0 0 1 0 0 0])
 
+
+
+(buffer-write! buffer-32-3 [1 0 0 0 1 0 0 0
+                            1 0 0 0 1 0 0 0
+                            1 0 0 0 1 0 0 0
+                            1 1 0 1 1 0 1 1])
+
+
 (buffer-write! buffer-32-4 [1 1 1 1 1 1 1 1
                             2 2 2 2 2 2 2 2
                             2 2 2 2 2 2 2 2
                             0 0 0 0 0 0 0 0])
+
+
+(buffer-write! buffer-32-5 [12 12 12 12 12 12 12 12
+                            4 4 4 4 4 4 4 4
+                            4 4 4 4 4 4 4 4
+                            8 8 8 8 8 8 8 8])
+
+
+                                        ;Mooger
 
 
 (def tbBufReader (beatBufferReader [:tail early-g]
@@ -347,14 +402,16 @@
                                        :outbus     cbus4))
 
 (def chordBufReader (chordBufferReader :chord-buf  buffer-32-2
-                                       :idx-buf    buffer-32-3
+                                       :idx-buf    buffer-32-5
                                        :in-bus-ctr b4th_beat-cnt-bus
                                        :outbus     mcbus3))
+
+(kill chordBufReader)
 
 (control-bus-get mcbus3)
 
 (ctl tbBufReader :in-trg-bus b8th_beat-trg-bus
-     :in-bus-ctr b4th_beat-cnt-bus)
+     :in-bus-ctr b8th_beat-cnt-bus)
 
 (ctl noteBufReader :in-trg-bus b8th_beat-trg-bus
      :in-bus-ctr b8th_beat-cnt-bus)
@@ -400,9 +457,14 @@
 (ctl tb :attack 0.01 :sustain 0.0101 :release 0.1 :decay 0.01
      :amp 1 :cutoff 500 :env-amount 0.001)
 
+(ctl tb :attack 0.01 :sustain 0.0101 :release 0.1 :decay 0.01
+     :amp 3 :cutoff 50 :env-amount 0.001)
+
 (kill tb)
 
 (stop)
+                                        ;Mooger
+
 
   (defsynth mooger
     "Choose 0, 1, or 2 for saw, sin, or pulse"
@@ -410,8 +472,10 @@
      amp  0.3
      osc1 1
      osc2 1
+     osc3 1
      osc1-level 1
      osc2-level 1
+     osc3-level 1
      cutoff 500
      attack 0.001
      decay 0.3
@@ -422,32 +486,94 @@
      fsustain 0.99
      frelease 0.01
      sl1 0
-     sl2 1]
+     sl2 1
+     sl3 2]
     (let [freqs_in   (in:kr chord-bus  3)
           freq1 (select:kr sl1 freqs_in)
           freq2 (select:kr sl2 freqs_in)
+          freq3 (select:kr sl3 freqs_in)
           gate       (in:kr beat-control-bus)
           adj        (max 1 gate)
           osc-bank-1 [(saw freq1) (sin-osc freq1) (pulse freq1)]
-          osc-bank-2 [(saw freq1) (sin-osc freq1) (pulse freq1)]
+          osc-bank-2 [(saw freq2) (sin-osc freq2) (pulse freq2)]
+          osc-bank-3 [(saw freq3) (sin-osc freq3) (pulse freq3)]
           amp-env    (env-gen (adsr attack decay sustain release) :gate gate)
           f-env      (env-gen (adsr fattack fdecay fsustain frelease) :gate gate)
           s1         (* osc1-level (select osc1 osc-bank-1))
           s2         (* osc2-level (select osc2 osc-bank-2))
-          filt       (moog-ff (+ s1 s2) (* adj cutoff f-env) 3)]
+          s3         (* osc3-level (select osc3 osc-bank-3))
+          filt       (moog-ff (+ s1 s2 s3) (* adj cutoff f-env) 3)]
       (out 0 (pan2 (* amp amp-env filt)))))
 
 (def bg (mooger  [:tail early-g] :beat-control-bus  cbus4 :chord-bus mcbus3 :amp 0.03))
 
 (ctl bg :sl1 0 :sl2 0 :amp 0.05)
 
-(ctl bg :osc1 2 :osc2 1 :osc1-level 0.95 :osc2-level 0.95 :cutoff 3000
-       :attack 1.0001 :decay 1.001 :sustain 0.99 :release 0.001)
+(ctl bg :osc1 1 :osc2 2 :osc3 1 :osc1-level 0.95 :osc2-level 0.95 :cutoff 10
+       :attack 0.001 :decay 0.001 :sustain 0.99 :release 0.001)
 
 (kill bg)
 
 (pp-node-tree)
 
-(odoc select)
+                                        ;Vintage bass
+
+
+
+(buffer-write! buffer-32-6 [1 1 0 0 0 0 0 0
+                            0 0 0 0 0 0 0 0
+                            0 0 0 0 0 0 0 0
+                            1 1 0 0 0 0 0 0])
+
+
+(buffer-write! buffer-32-7 [1 1 1 1 1 1 1 1
+                            4 4 4 4 4 4 4 4
+                            0 0 0 0 0 0 0 0
+                            0 0 0 0 0 0 0 0])
+
+
+
+(def vbBufReader (beatBufferReader [:tail early-g]
+                         :beat-buf buffer-32-6
+                         :in-trg-bus b4th_beat-trg-bus
+                         :in-bus-ctr b4th_beat-cnt-bus
+                         :outbus cbus5))
+
+
+(def bassNoteBufReader (noteBufferReader  [:tail early-g]   :chord-buf  buffer-32-2
+                                       :idx-buf    buffer-32-7
+                                       :in-bus-ctr b4th_beat-cnt-bus
+                                       :outbus     cbus6))
+
+(control-bus-get cbus6)
+  (defsynth vintage-bass
+    [beat-control-bus 0
+     note-bus 0
+     velocity 80
+     amp 1
+     del 0]
+    (let [freqs_in   (in:kr note-bus)
+          gate       (in:kr beat-control-bus)
+          freq       freqs_in
+          adj        (max 1 gate)
+          sub-freq (- freq (midicps 12))
+          velocity (/ velocity 127.0)
+          sawz1    (* 0.275 (saw [freq (* 1.01 freq)]))
+          sawz2    (* 0.75 (saw [(- freq 2) (+ 1 freq)]))
+          sqz      (* 0.3 (pulse [sub-freq (- sub-freq 1)]))
+          mixed    (* 5 (+ sawz1 sawz2 sqz))
+          env      (env-gen (adsr 0.1 3.3 0.4 0.8) :gate gate)
+          filt     (* env (moog-ff mixed (* velocity env (+ freq 200)) 2.2))
+          ]
+      (out 0 (* amp filt))))
+
+
+(def vb (vintage-bass  [:tail early-g] :beat-control-bus  cbus5 :note-bus cbus6))
+
+(ctl vb :amp 1 :velocity 700)
+
+(kill vb)
+
+(odoc moog-ff)
 
 (stop)
