@@ -6,6 +6,6 @@
     :injections [(clojure.lang.RT/loadLibrary org.opencv.core.Core/NATIVE_LIBRARY_NAME)]
     :repositories [["Viritystila" "https://github.com/Viritystila/OpenCV/raw/master"]]
     :dependencies [[org.clojure/clojure "1.9.0"]
-                    [overtone "0.10.3"][shadertone "0.2.6-SNAPSHOT"]
-                    [opencv/opencv "4.0.0-a-linux"]
-                    [opencv/opencv-native "4.0.0-a-linux"]])
+                    [overtone "0.10.3"][org.viritystila/shadertone "0.2.6-SNAPSHOT"]
+                    [org.viritystila/opencv "4.0.1-linux"]
+                    [org.viritystila/opencv-native "4.0.1-linux"]])

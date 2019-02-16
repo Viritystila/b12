@@ -84,7 +84,7 @@
     (def b16th-cnt (b16th_beat-cnt [:after b16th-trg]))
     (def b32th-trg (b32th_beat-trg [:after r-trg]))
     (def b32th-cnt (b32th_beat-cnt [:after b32th-trg]))
-    (control-bus-set! master-rate-bus (* 3 36))
+    (control-bus-set! master-rate-bus (* 2 36))
     )
   (do
     (defonce main-g (group "main bus"))
@@ -186,24 +186,36 @@
  (pp-node-tree)
 ;(kill 247)
 
- (buffer-write! buffer-64-1 [1 0 2 0 0 0 0 0
-                             1 0 4 0 0 0 0 0
+ (buffer-write! buffer-64-1 [1 0 0 0 2 0 0 0
+                             1 0 0 0 4 0 0 0
                              1 0 0 0 0 0 0 0
                              1 0 0 0 0 0 0 0
                              1 0 0 0 0 0 0 0
                              1 0 0 0 0 0 0 0
                              1 0 0 0 2 0 0 0
-                             3 0 5 0 0 0 0 0])
+                             3 0 3 0 5 0 0 0])
+
+(buffer-write! buffer-64-1 [2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 1 0 0 0
+                             2 0 2 0 4 0 0 0])
 
 
- (buffer-write! buffer-64-1 [1 0 0 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
-                             1 0 2 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
-                             1 0 0 0 1 0 0 0
-                             2 0 3 0 4 0 0 0])
+(buffer-write! buffer-64-1 [ 1 0 0 0 0 0 0 0
+                             0 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             0 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             0 0 0 0 0 0 0 0
+                             1 0 0 0 0 0 0 0
+                             0 0 0 0 0 0 0 0])
+
+
+
 
 
 (defsynth beatBufferReader [beat-buf 0
@@ -228,7 +240,7 @@
 (ctl kickBufReader
      :beat-buf buffer-64-1
      :in-trg-bus b8th_beat-trg-bus
-     :in-bus-ctr b8th_beat-cnt-bus)
+     :in-bus-ctr b4th_beat-cnt-bus)
 
 (kill kickBufReader)
 
@@ -296,7 +308,7 @@
               :beat-control-bus cbus1 :outbus 0
               :video-control-bus vcbus1))
 
-(ctl k1 :amp 0.75)
+(ctl k1 :amp 0.0)
 
 (ctl k1 :freq 90 :amp 1 :amp_output 0.5
      :v1 0.1 :v2 0.01 :v3 0.01
@@ -330,7 +342,7 @@
  (buffer-write! buffer-32-1 [1 0 0 0 1 0 0 0
                              4 0 0 0 2 0 0 0
                              5 0 0 0 3 0 0 0
-                             5 0 0 0 3 0 0 0])
+                             3 0 3 0 3 0 0 0])
 
 
 (def snareBufReader (beatBufferReader [:tail early-g]
@@ -338,6 +350,8 @@
                          :in-trg-bus b4th_beat-trg-bus
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus2 ))
+
+(ctl snareBufReader :beat-buf buffer-64-1)
 
 (pp-node-tree)
 
@@ -364,50 +378,92 @@
 
 (def snare1 (snare [:tail early-g] :beat-control-bus cbus2))
 
-(ctl snare1 :amp 0.05 :attack 0.01 :sustain 0.02 :release 0.1 )
+(ctl snare1 :amp 1.00 :attack 0.01 :sustain 0.02 :release 0.1 )
 
-(ctl snare1 :amp 0.25 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 100)
+(ctl snare1 :amp 0.25 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 10)
 
 (kill snare)
 
 (pp-node-tree)
 
                                         ;tb303
+(do
+  (buffer-write! buffer-32-2 0 (map note->hz (chord :C1 :minor)))
 
-(buffer-write! buffer-32-2 0 (map note->hz (chord :C1 :7sus2)))
+  (buffer-write! buffer-32-2 4 (map note->hz (chord :C2 :minor)))
 
-(buffer-write! buffer-32-2 4 (map note->hz (chord :C2 :7sus2)))
+  (buffer-write! buffer-32-2 8 (map note->hz (chord :C3 :minor)))
 
-(buffer-write! buffer-32-2 8 (map note->hz (chord :C3 :7sus2)))
+  (buffer-write! buffer-32-2 12 (map note->hz (chord :C4 :minor)))
 
-(buffer-write! buffer-32-2 12 (map note->hz (chord :C4 :7sus2)))
-
-(buffer-write! buffer-32-2 16 (map note->hz (chord :C5 :7sus2)))
-
-
-(buffer-write! buffer-32-3 [0 0 0 0 1 0 0 0
-                            1 0 0 0 1 0 0 0
-                            1 0 0 0 1 0 0 0
-                            0 0 0 0 1 0 0 0])
+  (buffer-write! buffer-32-2 16 (map note->hz (chord :C5 :minor))))
 
 
+(buffer-write! buffer-32-3 [1 0 1 0 1 0 0 0
+                            0 0 1 0 1 0 0 0
+                            0 0 1 0 1 0 0 0
+                            0 0 1 0 1 0 0 0])
 
-(buffer-write! buffer-32-3 [1 0 0 1 1 0 1 0
+
+
+(buffer-write! buffer-32-3 [1 0 1 1 1 0 1 0
                             1 0 1 0 1 0 1 0
                             1 0 1 0 1 0 1 0
-                            1 1 0 1 1 1 1 1])
+                            1 1 0 0 1 1 1 0])
+
+
+(buffer-write! buffer-32-3 [0 1 0 2 0 1 0 0
+                            0 1 0 3 0 1 0 0
+                            0 1 0 4 0 1 0 0
+                            0 1 0 3 0 1 0 0])
+
 
 
 (buffer-write! buffer-32-4 [1 1 1 5 4 3 3 1
-                            2 2 1 2 1 2 2 2
-                            2 2 1 2 1 2 0 4
-                            0 1 0 2 3 4 5 6])
+                            8 2 1 2 1 2 2 2
+                            12 2 1 2 1 2 0 4
+                            8 12 0 16 12 8 8 6])
+
+
+(buffer-write! buffer-32-4 [1 1 1 5 2 3 3 1
+                            3 2 1 2 2 2 2 2
+                            1 2 1 2 3 2 0 4
+                            8 1 0 1 2 8 10 6])
+
+
+(buffer-write! buffer-32-4 [0 1 1 4 0 4 0 4
+                            0 1 1 4 0 4 0 4
+                            0 1 1 4 0 4 0 4
+                            0 1 1 4 0 4 0 4])
+
+
+(buffer-write! buffer-32-4 [4 4 5 4 4 4 0 4
+                            4 4 5 4 4 4 0 4
+                            4 4 5 4 4 4 0 4
+                            4 4 5 4 4 4 0 4])
+
+
+(buffer-write! buffer-32-4 [18 17 16 14 13 12 10 9
+                            8 6 5 4 2 1 0 1
+                            2 4 5 6 8 9 10 12
+                            13 14 16 17 18 0 1 2])
+
+
+(buffer-write! buffer-64-2 [16 16 16 16 16 16 16 16
+                            12 13 14 14 14 14 14 14
+                            10 10 10 10 10 10 10 9
+                            8 8 8 8 8 0 0 0
+                            0 0 0 0 0 0 0 0
+                            0 0 0 0 4 4 4 4
+                            2 2 2 2 8 8 8 8
+                            9 9 9 10 10 12 13 14])
+
 
 
 (buffer-write! buffer-32-5 [12 12 12 12 12 12 12 12
                             4 4 4 4 4 4 4 4
                             4 4 4 4 4 4 4 4
-                            8 8 8 8 8 8 8 8])
+                            8 8 8 8 4 8 8 8])
 
 
                                         ;Mooger
@@ -419,11 +475,14 @@
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus3 ))
 
+(kill tbBufReader)
 
 (def noteBufReader (noteBufferReader  [:tail early-g]   :chord-buf  buffer-32-2
                                        :idx-buf    buffer-32-4
                                        :in-bus-ctr b4th_beat-cnt-bus
                                        :outbus     cbus4))
+
+(ctl noteBufReader :idx-buf buffer-64-2)
 
 (def chordBufReader (chordBufferReader :chord-buf  buffer-32-2
                                        :idx-buf    buffer-32-5
@@ -434,14 +493,15 @@
 
 (control-bus-get mcbus3)
 
-(ctl tbBufReader :in-trg-bus b16th_beat-trg-bus
-     :in-bus-ctr b4th_beat-cnt-bus)
+(ctl tbBufReader :in-trg-bus b8th_beat-trg-bus
+     :in-bus-ctr b8th_beat-cnt-bus)
 
-(ctl noteBufReader :in-trg-bus b16th_beat-trg-bus
-     :in-bus-ctr b16th_beat-cnt-bus)
+(ctl noteBufReader :in-trg-bus b32th_beat-trg-bus
+     :in-bus-ctr b32th_beat-cnt-bus)
 
 
 (control-bus-get cbus4)
+
 ;(kill noteBufReader)
 
 (pp-node-tree)
@@ -457,7 +517,8 @@
      cutoff     300
      env-amount 0.01
      amp        10
-     fidx       0]
+     fidx       0
+     ctrl-output 0]
     (let [freqs_in   (in:kr note-bus)
           gate       (in:kr beat-control-bus)
           freq       freqs_in
@@ -473,18 +534,26 @@
                          (pulse freqs 0.5)
                          (lf-tri freqs)])
           selector   (select wave waves)
-          filt       (rlpf selector fil-cutoff r)]
+          filt       (rlpf selector fil-cutoff r)
+
+          ctrl-env    (env-gen:kr (adsr attack decay sustain release)
+                              (line:kr 1 0 (+ attack decay release))
+                              :gate gate)
+          _          (out:kr ctrl-output ctrl-env)
+          ]
       (out 0 (pan2 (* amp filt)))))
 
-(def tb (tb303  [:tail early-g] :beat-control-bus  cbus3 :note-bus cbus4))
+(def tb (tb303  [:tail early-g] :beat-control-bus  cbus3 :note-bus cbus4 :ctrl-output vcbus3))
 
-(ctl tb :attack 0.01 :sustain 0.0101 :release 0.1 :decay 0.01
-     :amp 1 :cutoff 500 :env-amount 0.001)
+(ctl tb :attack 0.01 :sustain 1.0101 :release 0.3 :decay 0.11
+     :amp 1 :cutoff 1500 :env-amount 0.001)
 
-(ctl tb :attack 0.01 :sustain 0.0101 :release 0.1 :decay 0.01
-     :amp 3 :cutoff 50 :env-amount 0.001)
+(ctl tb :attack 0.001 :sustain 0.0101 :release 0.2 :decay 0.01
+     :amp 1 :cutoff 150 :env-amount 0.01)
 
 (kill tb)
+
+(pp-node-tree)
 
 (stop)
                                         ;Mooger
@@ -526,17 +595,19 @@
           s1         (* osc1-level (select osc1 osc-bank-1))
           s2         (* osc2-level (select osc2 osc-bank-2))
           s3         (* osc3-level (select osc3 osc-bank-3))
-          filt       (moog-ff (+ s1 s2 s3) (* adj cutoff f-env) 3)]
+          filt       (moog-ff (+ s1 s2 s3) (* cutoff f-env) 3)]
       (out 0 (pan2 (* amp amp-env filt)))))
 
-(def bg (mooger  [:tail early-g] :beat-control-bus  cbus4 :chord-bus mcbus3 :amp 0.03))
+(def bg (mooger  [:tail early-g] :beat-control-bus  cbus3 :chord-bus mcbus3 :amp 0.03))
 
-(ctl bg :sl1 0 :sl2 0 :amp 0.05)
+(ctl bg :sl1 0 :sl2 1 :amp 0.5)
 
-(ctl bg :amp 0.05 :osc1 0 :osc2 0 :osc3 1 :osc1-level 0.95 :osc2-level 0.95 :cutoff 10
-       :attack 0.001 :decay 0.001 :sustain 0.99 :release 0.001 :beat-control-bus cbus6)
+(ctl bg :amp 0.5 :osc1 0 :osc2 1 :osc3 0 :osc1-level 0.95 :osc2-level 0.95 :cutoff 1000
+       :attack 0.92 :decay 0.91 :sustain 0.99 :release 0.01 :beat-control-bus cbus4)
 
 (kill bg)
+
+(control-bus-get mcbus3)
 
 (pp-node-tree)
 
@@ -544,10 +615,10 @@
 
 
 
-(buffer-write! buffer-32-6 [1 1 -1 1 1 0 0 0
-                            1 1 0 0 0 0 0 0
-                            0 0 0 0 0 0 0 0
-                            1 1 -1 1 1 0 0 0])
+(buffer-write! buffer-32-6 [1 0 1 0 5 0 0 0
+                            1 0 1 0 1 0 1 0
+                            1 0 1 0 1 0 1 0
+                            1 0 1 0 5 0 0 0])
 
 
 (buffer-write! buffer-32-6 [1 1 -1 1 1 -1 1 1
@@ -557,10 +628,10 @@
 
 
 
-(buffer-write! buffer-32-7 [1 1 1 1 1 1 1 1
-                            4 4 4 4 4 4 4 4
-                            4 4 4 4 0 0 0 0
-                            8 8 8 8 0 0 0 0])
+(buffer-write! buffer-32-7 [14 4 4 1 8 8 2 1
+                            1 1 1 1 1 1 1 1
+                            12 12 8 1 12 12 12 1
+                            1 1 1 1 1 1 1 1])
 
 
 
@@ -570,11 +641,16 @@
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus5))
 
+(ctl vbBufReader :in-trg-bus b8th_beat-trg-bus
+     :in-bus-ctr b8th_beat-cnt-bus)
+
 
 (def bassNoteBufReader (noteBufferReader  [:tail early-g]   :chord-buf  buffer-32-2
                                        :idx-buf    buffer-32-7
                                        :in-bus-ctr b4th_beat-cnt-bus
                                        :outbus     cbus6))
+
+(kill bassNoteBufReader)
 
 (control-bus-get cbus6)
   (defsynth vintage-bass
@@ -593,15 +669,17 @@
           sawz2    (* 0.75 (saw [(- freq 2) (+ 1 freq)]))
           sqz      (* 0.3 (pulse [sub-freq (- sub-freq 1)]))
           mixed    (* 5 (+ sawz1 sawz2 sqz))
-          env      (env-gen (adsr 0.1 3.3 0.4 0.8) :gate gate)
-          filt     (* env (moog-ff mixed (* velocity env (+ freq 200)) 2.2))
-          ]
+          env      (env-gen (adsr (* adj 0.1) (* 1 3.3) 0.4 0.8) :gate gate)
+          filt   (* env (moog-ff mixed (* velocity env (+ freq 200)) 2.2))]
+
       (out 0 (* amp filt))))
+
+
 
 
 (def vb (vintage-bass  [:tail early-g] :beat-control-bus  cbus5 :note-bus cbus6))
 
-(ctl vb :amp 0.5 :velocity 2000)
+(ctl vb :amp 1.0  :velocity 10000)
 
 (kill vb)
 
@@ -609,38 +687,156 @@
 
 (stop)
 
+(pp-node-tree)
+
+(control-bus-set! cbus6 0)
 
 
-                                        ;Video
+                                        ; Free synth
+
+(defsynth supersaw [note-bus 0 gate-bus 0 out-bus 0 ctrl-output 0 leak 0.25 cutoff 100 amp 1]
+  (let [gate   (in:kr gate-bus)
+        freq   (in:kr note-bus)
+        input  (lf-saw freq)
+        shift1 (lf-saw 4)
+        shift2 (lf-saw 7)
+        shift3 (lf-saw 5)
+        shift4 (lf-saw 2)
+        comp1  (> input shift1)
+        comp2  (> input shift2)
+        comp3  (> input shift3)
+        comp4  (> input shift4)
+        output (+ (- input comp1) (- input comp2) (- input comp3) (- input comp4))
+        output (- output input)
+        output (leak-dc:ar (* output leak))
+        output (lpf output cutoff)
+        _      (out:kr ctrl-output freq)]
+    (out out-bus (pan2  (* amp output)))))
+
+(odoc lpf)
+
+(def ss1 (supersaw :note-bus cbus4 :gate-bus 1 :outbus 0 :ctrl-output vcbus2 :leak 0.25 :amp 0.2))
+
+(ctl ss1 :amp 1 :leak 0.25 :note-bus cbus4 :cutoff 200)
+
+(kill ss1)
+
+(pp-node-tree)
+
+(kill 115)
+
+(control-bus-get cbus4)
+
+
+
+                                        ;OSC
+(def oscserver (osc-server 3333 "osc-clj"))
+(def client (osc-client "localhost" 3333))
+(zero-conf-on)
+(java.net.InetAddress/getLocalHost)
+
+
+(osc-handle oscserver "/play2" (fn [msg] (println "MSG: " msg)))
+(osc-listen oscserver (fn [msg] (println msg)) :debug)
+(osc-send client "/play2" "i" 10)
+
+(osc-rm-listener oscserver :debug)
+(osc-rm-listener oscserver :debug)
+
+(osc-handle oscserver "/play2" (fn [msg] (println (nth (:args msg) 8))))
+
+
+
+(definst foo [freq 440] (sin-osc freq))
+
+(defn control-foo
+ [val]
+  (let [val (* 1  val)
+        _  (control-bus-set! cbus32 val)]
+      (ctl foo :freq val)))
+
+(osc-handle oscserver "/play2" (fn [msg] (control-foo (nth (:args msg) 6))))
+
+(foo)
+
+(control-bus-get vcbus2)
+
+(pp-node-tree)
+
+(kill 38)
+                                        ;video
+
+
 (defonce beat-cnt-bus-atom_1 (bus-monitor b4th_beat-cnt-bus))
 
 
-(defonce beat-cnt-bus-atom_3 (bus-monitor b1st_beat-cnt-bus))
+(defonce beat-cnt-bus-atom_2 (bus-monitor b1st_beat-cnt-bus))
 
+(defonce cbus32-atom_3 (bus-monitor cbus32))
+
+beat-cnt-bus-atom_1
 
 (add-watch beat-cnt-bus-atom_1 :cnt (fn [_ _ old new]
                                     (let [])
                                         ;(t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.1) )
 
+ ; (t/set-fixed-buffer-index 1 :ff (nth (control-bus-get cbus32) 0))
+   (t/set-fixed-buffer-index 1 :inc)
 (t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.01) )
-; (t/set-dataArray-item 1 (+ (nth (control-bus-get cbus2) 0) 0.1) )
-; (t/set-dataArray-item 2 (+ (nth (control-bus-get cbus3) 0) 0.1) )
-; (t/set-dataArray-item 3 (+ (nth (control-bus-get cbus4) 0) 0.1) )
-(t/set-dataArray-item 5 (+ (nth (control-bus-get cbus6) 0) 0.1) )
-                                      ))
-
-(t/start "./b12.glsl" :width 1920 :height 1080 :cams [0 1] :videos ["../videos/jkl.mp4" "../videos/spede.mp4" "../videos/metro.mp4 "  "../videos/uni.mp4"])
+(t/set-dataArray-item 1 (+ (nth (control-bus-get vcbus2) 0) 0.01) )
+(t/set-dataArray-item 2 (+ (nth (control-bus-get vcbus3) 0) 0.01) )
+(t/set-dataArray-item 3 (+ (nth (control-bus-get cbus32) 0) 0.1) )
+                                      (t/set-dataArray-item 5 (+ (nth (control-bus-get cbus6) 0) 0.1) )
 
 
+                                     ))
+
+(t/start "./b12.glsl" :width 1920 :height 1080 :cams [0 3] :videos ["../videos/jkl.mp4" "../videos/spede.mp4"  "../videos/uni.mp4" "../videos/hapsiainen_good.mp4" "../videos/tvshop2_good.mp4"])
+
+;Spede: 5100
+
+(t/bufferSection 1 0 51000)
+
+(t/set-video-fixed 1 :static)
+
+
+(t/bufferSection 2 0 6500)
+
+(t/set-video-fixed 2 :fw)
+
+
+(t/bufferSection 3 0 300)
+
+(t/set-video-fixed 3 :fw)
+
+
+;Tvshop 2 frames: 1100, 4100, 15100,20500,  25100
+(t/bufferSection 4 0 20500)
+
+(t/set-video-fixed 4 :fw)
+
+(t/post-start-video "../videos/spede.mp4" 1)
+
+
+(t/set-video-play 1)
+
+(t/set-video-play 4)
+
+(t/bufferSection 3 0 6500)
+
+(t/set-video-fixed 3 :fw)
+
+
+(t/post-start-cam 2)
 
 (t/set-video-frame-limits 1  51000 52000)
 
-beat-cnt-bus-atom_3
+(t/toggle-recording "/dev/video1")
 
 (control-bus-get b1st_beat-cnt-bus)
 
 (nth (control-bus-get b1st_beat-cnt-bus) 0)
 
-(remove-watch beat-cnt-bus-atom_2 :cnt)
+(remove-watch beat-cnt-bus-atom_1 :cnt)
 
-(keys (:watches (bean beat-cnt-bus-atom_2)))
+(keys (:watches (bean beat-cnt-bus-atom_1)))
