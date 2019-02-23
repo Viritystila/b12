@@ -179,6 +179,24 @@
     (defonce buffer-64-4 (buffer 64))
     (defonce buffer-64-5 (buffer 64))
     (defonce buffer-64-6 (buffer 64))
+
+
+    (defonce buffer-128-1 (buffer 128))
+    (defonce buffer-128-2 (buffer 128))
+    (defonce buffer-128-3 (buffer 128))
+    (defonce buffer-128-4 (buffer 128))
+    (defonce buffer-128-5 (buffer 128))
+    (defonce buffer-128-6 (buffer 128))
+
+
+    (defonce buffer-256-1 (buffer 256))
+    (defonce buffer-256-2 (buffer 256))
+    (defonce buffer-256-3 (buffer 256))
+    (defonce buffer-256-4 (buffer 256))
+    (defonce buffer-256-5 (buffer 256))
+    (defonce buffer-256-6 (buffer 256))
+
+
     )
 )
 
@@ -205,14 +223,14 @@
                              2 0 2 0 4 0 0 0])
 
 
-(buffer-write! buffer-64-1 [ 1 0 0 0 0 0 0 0
+(buffer-write! buffer-64-1 [ 2 0 0 0 0 0 0 0
                              0 0 0 0 0 0 0 0
-                             2 0 0 0 0 0 0 0
                              0 0 0 0 0 0 0 0
-                             2 0 0 0 0 0 0 0
                              0 0 0 0 0 0 0 0
-                             1 0 0 0 0 0 0 0
-                             0 0 0 0 0 0 0 0])
+                             0 0 0 0 0 0 0 0
+                             0 0 0 0 0 0 0 0
+                             2 0 0 0 2 0 0 0
+                             1.2 0 0 1.1 0 0 0 0])
 
 
 
@@ -239,11 +257,12 @@
 
 (ctl kickBufReader
      :beat-buf buffer-64-1
-     :in-trg-bus b8th_beat-trg-bus
+     :in-trg-bus b4th_beat-trg-bus
      :in-bus-ctr b4th_beat-cnt-bus)
 
 (kill kickBufReader)
 
+(pp-node-tree)
 
 (defsynth chordBufferReader [chord-buf  0
                              idx-buf    0
@@ -317,11 +336,20 @@
      :f1 80 :f2 30 :f3 80)
 
 
+;uni
 (ctl k1 :freq 40 :amp 0.7 :amp_output 1
      :v1 0.1 :v2 0.01 :v3 0.01
      :c1 -20 :c2 -8 :c3 -8
      :d1 2 :d2 2 :d3 0.5
      :f1 20 :f2 20 :f3 20)
+
+;Hapsiainen
+(ctl k1 :freq 80 :amp 0.5 :amp_output 1
+     :v1 0.1 :v2 0.01 :v3 0.01
+     :c1 20 :c2 -1 :c3 -1
+     :d1 2 :d2 2 :d3 0.5
+     :f1 100 :f2 10 :f3 33)
+
 
 (kill k1)
 
@@ -351,7 +379,7 @@
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus2 ))
 
-(ctl snareBufReader :beat-buf buffer-64-1)
+(ctl snareBufReader :beat-buf buffer-64-1 :in-bus-ctr b4th_beat-cnt-bus)
 
 (pp-node-tree)
 
@@ -380,7 +408,7 @@
 
 (ctl snare1 :amp 1.00 :attack 0.01 :sustain 0.02 :release 0.1 )
 
-(ctl snare1 :amp 0.25 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 10)
+(ctl snare1 :amp 0.15 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 10)
 
 (kill snare)
 
@@ -399,10 +427,10 @@
   (buffer-write! buffer-32-2 16 (map note->hz (chord :C5 :minor))))
 
 
-(buffer-write! buffer-32-3 [1 0 1 0 1 0 0 0
-                            0 0 1 0 1 0 0 0
-                            0 0 1 0 1 0 0 0
-                            0 0 1 0 1 0 0 0])
+(buffer-write! buffer-32-3 [0 0 0 0 1 1 0 0
+                            0 0 0 0 1 0 0 0
+                            0 0 0 0 1 0 0 0
+                            0 0 0 0 1 0 0 0])
 
 
 
@@ -416,6 +444,12 @@
                             0 1 0 3 0 1 0 0
                             0 1 0 4 0 1 0 0
                             0 1 0 3 0 1 0 0])
+
+
+(buffer-write! buffer-32-3 [1 1 1 2 1 1 1 1
+                            1 1 1 3 1 1 1 1
+                            1 1 1 4 1 1 1 1
+                            1 1 1 3 1 1 1 1])
 
 
 
@@ -459,12 +493,36 @@
                             9 9 9 10 10 12 13 14])
 
 
-
+;Hapsiainen
 (buffer-write! buffer-32-5 [12 12 12 12 12 12 12 12
-                            4 4 4 4 4 4 4 4
-                            4 4 4 4 4 4 4 4
-                            8 8 8 8 4 8 8 8])
+                            9 9 9 9 8 8 8 8
+                            16 16 16 16 16 16 16 16
+                            14 14 14 14 13 13 13 13])
 
+
+(buffer-write! buffer-32-5 [0 0 0 0 0 0 0 0
+                            1 1 1 1 2 2 2 2
+                            4 4 4 4 5 5 5 5
+                            2 2 2 2 2 2 2 2])
+
+(buffer-write! buffer-64-3 [12 12 12 12 12 12 12 12
+                            9 9 9 9 8 8 8 8
+                            16 16 16 16 16 16 16 16
+                            14 14 14 14 13 13 13 13
+                            12 12 12 12 12 12 12 12
+                            10 10 9 9 8 8 6 6
+                            4 4 4 4 5 5 5 5
+                            2 2 2 2 4 4 8 8])
+
+
+(buffer-write! buffer-64-3 [10 10 10 10 10 10 10 10
+                            9 9 9 9 8 8 8 8
+                            12 12 12 12 12 12 12 12
+                            10 10 10 10 10 10 10 10
+                            12 12 12 12 8 8 8 8
+                            9 9 9 9 9 9 9 9
+                            4 4 4 4 5 5 5 5
+                            4 4 4 4 8 8 8 8])
 
                                         ;Mooger
 
@@ -475,6 +533,8 @@
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus3 ))
 
+
+
 (kill tbBufReader)
 
 (def noteBufReader (noteBufferReader  [:tail early-g]   :chord-buf  buffer-32-2
@@ -482,19 +542,21 @@
                                        :in-bus-ctr b4th_beat-cnt-bus
                                        :outbus     cbus4))
 
-(ctl noteBufReader :idx-buf buffer-64-2)
+(ctl noteBufReader :idx-buf buffer-32-4)
 
 (def chordBufReader (chordBufferReader :chord-buf  buffer-32-2
                                        :idx-buf    buffer-32-5
                                        :in-bus-ctr b4th_beat-cnt-bus
                                        :outbus     mcbus3))
 
+(ctl chordBufReader :in-bus-ctr b4th_beat-cnt-bus :idx-buf buffer-64-3)
+
 (kill chordBufReader)
 
 (control-bus-get mcbus3)
 
-(ctl tbBufReader :in-trg-bus b8th_beat-trg-bus
-     :in-bus-ctr b8th_beat-cnt-bus)
+(ctl tbBufReader :in-trg-bus b4th_beat-trg-bus
+     :in-bus-ctr b4th_beat-cnt-bus)
 
 (ctl noteBufReader :in-trg-bus b32th_beat-trg-bus
      :in-bus-ctr b32th_beat-cnt-bus)
@@ -580,7 +642,8 @@
      frelease 0.01
      sl1 0
      sl2 1
-     sl3 2]
+     sl3 2
+     ctrl-output 0]
     (let [freqs_in   (in:kr chord-bus  3)
           freq1 (select:kr sl1 freqs_in)
           freq2 (select:kr sl2 freqs_in)
@@ -591,23 +654,30 @@
           osc-bank-2 [(saw freq2) (sin-osc freq2) (pulse freq2)]
           osc-bank-3 [(saw freq3) (sin-osc freq3) (pulse freq3)]
           amp-env    (env-gen (adsr attack decay sustain release) :gate gate)
+          ctrl-amp-env    (env-gen:kr (adsr attack decay sustain release) :gate gate)
+         ; _          (out:kr ctrl-output ctrl-amp-env)
           f-env      (env-gen (adsr fattack fdecay fsustain frelease) :gate gate)
+          ctrl-f-env (env-gen:kr (adsr fattack fdecay fsustain frelease) :gate gate)
+          _          (out:kr ctrl-output (* freq1 ctrl-f-env))
           s1         (* osc1-level (select osc1 osc-bank-1))
           s2         (* osc2-level (select osc2 osc-bank-2))
           s3         (* osc3-level (select osc3 osc-bank-3))
           filt       (moog-ff (+ s1 s2 s3) (* cutoff f-env) 3)]
       (out 0 (pan2 (* amp amp-env filt)))))
 
-(def bg (mooger  [:tail early-g] :beat-control-bus  cbus3 :chord-bus mcbus3 :amp 0.03))
+(def bg (mooger  [:tail early-g] :beat-control-bus  cbus3 :chord-bus mcbus3 :amp 0.03 :ctrl-output vcbus4))
 
-(ctl bg :sl1 0 :sl2 1 :amp 0.5)
+;hapsiainen
+(ctl bg :sl1 0 :sl2 1 :amp 0.2 :release 1.1 :cutoff 1000 :osc1 0 :osc2 1 :osc3 2 :attack 0.001 :decay 0.09
+     :sustain 0.001 :fattack 0.01 :fsustain 0.1 :frelease 1.965)
 
-(ctl bg :amp 0.5 :osc1 0 :osc2 1 :osc3 0 :osc1-level 0.95 :osc2-level 0.95 :cutoff 1000
-       :attack 0.92 :decay 0.91 :sustain 0.99 :release 0.01 :beat-control-bus cbus4)
+(ctl bg :amp 1.0 :osc1 0 :osc2 0 :osc3 0 :osc1-level 0.95 :osc2-level 0.95 :cutoff 4000
+       :attack 0.022 :decay 1.091 :sustain 0.0099 :release 1.001 :beat-control-bus cbus3)
 
+ (ctl bg :amp 0.00)
 (kill bg)
 
-(control-bus-get mcbus3)
+(control-bus-get vcbus4)
 
 (pp-node-tree)
 
@@ -764,6 +834,8 @@
 (pp-node-tree)
 
 (kill 38)
+
+(stop)
                                         ;video
 
 
@@ -776,7 +848,7 @@
 
 beat-cnt-bus-atom_1
 
-(add-watch beat-cnt-bus-atom_1 :cnt (fn [_ _ old new]
+(add-watch beat-cnt-bus-atom_2 :cnt (fn [_ _ old new]
                                     (let [])
                                         ;(t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.1) )
 
@@ -785,7 +857,7 @@ beat-cnt-bus-atom_1
 (t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.01) )
 (t/set-dataArray-item 1 (+ (nth (control-bus-get vcbus2) 0) 0.01) )
 (t/set-dataArray-item 2 (+ (nth (control-bus-get vcbus3) 0) 0.01) )
-(t/set-dataArray-item 3 (+ (nth (control-bus-get cbus32) 0) 0.1) )
+(t/set-dataArray-item 3 (+ (nth (control-bus-get vcbus4) 0) 0.0021) )
                                       (t/set-dataArray-item 5 (+ (nth (control-bus-get cbus6) 0) 0.1) )
 
 
@@ -795,9 +867,14 @@ beat-cnt-bus-atom_1
 
 ;Spede: 5100
 
+(t/bufferSection 0 0 5100)
+
+(t/set-video-fixed 0 :fw)
+
+
 (t/bufferSection 1 0 51000)
 
-(t/set-video-fixed 1 :static)
+(t/set-video-fixed 1 :fw)
 
 
 (t/bufferSection 2 0 6500)
@@ -811,12 +888,13 @@ beat-cnt-bus-atom_1
 
 
 ;Tvshop 2 frames: 1100, 4100, 15100,20500,  25100
-(t/bufferSection 4 0 20500)
+(t/bufferSection 4 0 2000)
 
 (t/set-video-fixed 4 :fw)
 
-(t/post-start-video "../videos/spede.mp4" 1)
+;(t/post-start-video "../videos/spede.mp4" 1)
 
+(t/release-cam-textures 2)
 
 (t/set-video-play 1)
 
@@ -827,7 +905,8 @@ beat-cnt-bus-atom_1
 (t/set-video-fixed 3 :fw)
 
 
-(t/post-start-cam 2)
+(t/post-start-cam 1)
+
 
 (t/set-video-frame-limits 1  51000 52000)
 

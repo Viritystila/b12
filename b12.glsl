@@ -16,12 +16,12 @@ void main(void){
   float it3=iDataArray[3];
   float it5=iDataArray[5];
   vec2 uv = (gl_FragCoord.xy / iResolution.xy);
-  vec2 block =floor(gl_FragCoord.xy/vec2(16*0.01*it1));
+  vec2 block =floor(gl_FragCoord.xy/vec2(16*1.01*it0));
   vec2 uv_noise = block / vec2(64);
-  uv_noise +=floor(vec2(it1*0.3) * vec2(12345.0, 3543.0))/vec2(sqrt(it1));
+  uv_noise +=floor(vec2(it0*0.3) * vec2(12345.0, 3543.0))/vec2(sqrt(it0));
 
-  float block_thres =pow(fract(it1+123556.0), 2.0)*0.02;
-  float line_thres =pow(fract(it1+ 33236), 3.0)* 0.7;
+  float block_thres =pow(fract(it0+123556.0), 2.0)*0.02;
+  float line_thres =pow(fract(it0+ 33236), 3.0)* 0.7;
 
   vec2 uvi=uv;
   uv.y=1.0-uv.y;//*sin(iDataArray[0])*2;
@@ -53,6 +53,8 @@ void main(void){
   vec4 pf = texture2D(iPreviousFrame, uvi);
 
 
+
+
   if (v0n.r< block_thres ||
       v1n.g <line_thres){
     vec2 dist = (fract(uv_noise)-0.5)*0.3;
@@ -61,7 +63,7 @@ void main(void){
     uv_b +=dist*0.125;
       }
 
-  vec4 glitchText=v2;
+  vec4 glitchText=v0;
   //fragColor.r = texture2D(iVideo0, uv_r).r;
   //	fragColor.g = texture2D(iVideo0, uv_g).g;
   //	fragColor.b = texture2D(iVideo0, uv_b).b;
@@ -81,7 +83,7 @@ void main(void){
 		float line = fract(gl_FragCoord.y / 3.0);
 		vec3 mask = vec3(3.0, 0.0, 0.0);
 		if (line > 0.333){
-                  discard;
+                  //discard;
                   mask = vec3(0.0, 3.0, 0.0);
                 }
 		if (line > 0.666)
@@ -90,12 +92,12 @@ void main(void){
 		glitchText.xyz *= mask;
 	}
 
-        vec4 bgVid=v2;
+        vec4 bgVid=mix(v4, pf, 1);
 const float tau = 6.28318530717958647692;
 vec3 wave = vec3(0.0);
 //float width = v0.x*((iDataArray[0]*iDataArray[0]*iDataArray[0]*iDataArray[0])/100000000);
 float n=10;
-float width=0.021*it0+0.02;
+ float width=0.11*it0;
 for (int i=0; i < 10; i++){
   n=1; //sin(iDataArray[0]);
   float sound =bgVid.x;
@@ -108,7 +110,7 @@ for (int i=0; i < 10; i++){
   //This shift of uv.x means our index into the sound data also
   //moves along, examining a different part of the audio wave.
   uv.x += 0.4/float(n);
-  uv.y -= 0.05;//*it0;
+  uv.y -= 0.05*it0;
 }
  wave *= 10/float(10); // * iDataArray[0];
 
@@ -122,7 +124,7 @@ for (int i=0; i < 10; i++){
   float squared_distance = dot(fg.rgb, fg.rgb);
 
 
-  if (squared_distance < it3)
+  if (squared_distance < it0)
  {
      fg = bg;
  }
@@ -142,6 +144,6 @@ for (int i=0; i < 10; i++){
     //cf6.b=bg.g;
     //fg.b=fg.r*sin(iDataArray[0])*fg.g;
 
-    gl_FragColor =mix(glitchText, cf6, 0); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
+    gl_FragColor = mix(pf, cf6, 0.1); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
 
 }

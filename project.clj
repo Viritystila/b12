@@ -8,4 +8,6 @@
     :dependencies [[org.clojure/clojure "1.9.0"]
                     [overtone "0.10.3"][org.viritystila/shadertone "0.2.6-SNAPSHOT"]
                     [org.viritystila/opencv "4.0.1-linux"]
-                    [org.viritystila/opencv-native "4.0.1-linux"]])
+                    [org.viritystila/opencv-native "4.0.1-linux"]]
+                    
+     :jvm-opts ^:replace [])
