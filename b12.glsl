@@ -76,7 +76,54 @@ vec4 glitch(vec2 uv_noise, vec2 uv,  vec4 v1In, vec4 v2In, float mod1, sampler2D
 }
 
 
+vec4 blackRemoval(vec4 fg, vec4 bg, float th, float mod1){
+  float squared_distance = dot(fg.rgb, fg.rgb);
 
+  if (squared_distance < (mod1*th))
+   {
+     fg = bg;
+   }
+
+  return fg;
+
+}
+
+vec4 waveColors(vec4 v1In, vec2 uv, float mod1, float ns, float w, float lines){
+  const float tau = 6.28318530717958647692;
+  vec3 wave = vec3(0.0);
+  //float width = v0.x*((iDataArray[0]*iDataArray[0]*iDataArray[0]*iDataArray[0])/100000000);
+  float n=10;
+  float width=w*mod1;
+  for (int i=0; i < lines; i++){
+    n=1; //sin(iDataArray[0]);
+    float sound =v1In.x;
+    float xymix=mix(uv.y, uv.x, 0);
+
+    float a = 0.1*float(i)*tau/float(n);
+    vec3 phase = smoothstep(-1.0,1.5, vec3(cos(a), cos(a-tau/3.0), cos(a-tau*2.0/3.0)));
+    wave += phase * smoothstep(width, 0.0, abs(xymix - ((sound*0.5)+0.2)));
+
+    //This shift of uv.x means our index into the sound data also
+    //moves along, examining a different part of the audio wave.
+    uv.x += 0.4/float(n);
+    uv.y -= 0.05*mod1;
+  }
+  wave *= 10/float(10); // * iDataArray[0];
+  vec4 cf8=vec4(wave, 1);
+  return cf8;
+}
+
+vec4 chromaKey(vec4 fg, vec4 bg){
+  float maxrb = max( fg.r, fg.g);
+  float k = clamp( (fg.b-maxrb)*90, 0.0, 1.0);
+
+  float dg = fg.b;
+  fg.b = min( fg.b, maxrb);//iDataArray[0]);
+    fg += dg - fg.b;
+
+    vec4 cf6=mix(fg, bg, k); //-sin(iDataArray[0]));
+    return cf6;
+}
 
 //Artifact code adapted from https://www.shadertoy.com/view/Md2GDw
 void main(void){
@@ -128,57 +175,16 @@ void main(void){
         vec4 glitchText=glitch(uv_noise, uv,  v2, v1, it0/2, iVideo0, iVideo1);
 
         vec4 bgVid=mix(v0, pf, 0);
-const float tau = 6.28318530717958647692;
-vec3 wave = vec3(0.0);
-//float width = v0.x*((iDataArray[0]*iDataArray[0]*iDataArray[0]*iDataArray[0])/100000000);
-float n=10;
- float width=0.11*it0;
-for (int i=0; i < 10; i++){
-  n=1; //sin(iDataArray[0]);
-  float sound =bgVid.x;
-  float xymix=mix(uv.y, uv.x, 0);
 
-  float a = 0.1*float(i)*tau/float(n);
-  vec3 phase = smoothstep(-1.0,1.5, vec3(cos(a), cos(a-tau/3.0), cos(a-tau*2.0/3.0)));
-  wave += phase * smoothstep(width, 0.0, abs(xymix - ((sound*0.5)+0.2)));
-
-  //This shift of uv.x means our index into the sound data also
-  //moves along, examining a different part of the audio wave.
-  uv.x += 0.4/float(n);
-  uv.y -= 0.05*it0;
-}
- wave *= 10/float(10); // * iDataArray[0];
-
-  vec4 cf8=vec4(wave, 1);
-
+ vec4 cf8=waveColors(v0, uv, it0, 10, 0.021, 10);
     //color key
 
   vec4 bg=mix(bgVid, cf8, it0);
-  vec4 fg=v3; //glitchText //v1;
-
-  float squared_distance = dot(fg.rgb, fg.rgb);
+  vec4 fg=v1; //glitchText //v1;
 
 
-  if (squared_distance < it0)
- {
-     fg = bg;
- }
+    vec4 cf6=chromaKey(fg, bg);
 
-
-  float maxrb = max( fg.r, fg.g);
-  float k = clamp( (fg.b-maxrb)*90, 0.0, 1.0);
-
-  float dg = fg.b;
-  fg.b = min( fg.b, maxrb);//iDataArray[0]);
-    fg += dg - fg.b;
-
-
-    vec4 bg2=mix(c1, bg, 0.5);
-    vec4 cf6=mix(fg, bg, k); //-sin(iDataArray[0]));
-
-    //cf6.b=bg.g;
-    //fg.b=fg.r*sin(iDataArray[0])*fg.g;
-
-    gl_FragColor =cf8;//glitchText;//mix(pf, cf6, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
+    gl_FragColor =cf6;//glitchText;//mix(pf, cf6, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
 
 }
