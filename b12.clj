@@ -233,6 +233,38 @@
                              1.2 0 0 1.1 0 0 0 0])
 
 
+(buffer-write! buffer-256-1 [2 0 2 0 2 0 0 0
+                             2 0 2 0 2 0 0 0
+                             2 0 2 0 2 0 0 0
+                             2 0 2 0 2 0 0 0
+                             2 0 2 0 2 0 0 0
+                             2 0 2 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 2 0 0 0
+                             0 0 0 0 2 0 2 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0
+                             2 0 0 0 0 0 0 0])
 
 
 
@@ -259,6 +291,14 @@
      :beat-buf buffer-64-1
      :in-trg-bus b4th_beat-trg-bus
      :in-bus-ctr b4th_beat-cnt-bus)
+
+                                        ;Hapsiainen
+
+(ctl kickBufReader
+     :beat-buf buffer-256-1
+     :in-trg-bus b4th_beat-trg-bus
+     :in-bus-ctr b4th_beat-cnt-bus)
+
 
 (kill kickBufReader)
 
@@ -320,7 +360,8 @@
           env       (env-gen a-env :gate pls)
           venv      (env-gen:kr a-env :gate pls)
           _         (out:kr video-control-bus venv)
-          output    (*  amp (+ cutoff sound) env)]
+          output    (*  amp (+ cutoff sound) env)
+          output    (free-verb output 0.1 0.3 0.1)]
       (out outbus (pan2 (* amp_output (clip:ar output clipVal))))))
 
 (def k1 (kick [:tail early-g] :freq 80 :amp 1
@@ -344,11 +385,11 @@
      :f1 20 :f2 20 :f3 20)
 
 ;Hapsiainen
-(ctl k1 :freq 80 :amp 0.5 :amp_output 1
-     :v1 0.1 :v2 0.01 :v3 0.01
-     :c1 20 :c2 -1 :c3 -1
-     :d1 2 :d2 2 :d3 0.5
-     :f1 100 :f2 10 :f3 33)
+(ctl k1 :freq 180 :amp 0.5 :amp_output 1
+     :v1 0.01 :v2 0.11 :v3 0.1
+     :c1 2 :c2 -11 :c3 -2
+     :d1 2 :d2 2 :d3 4.5
+     :f1 100 :f2 140 :f3 30)
 
 
 (kill k1)
@@ -379,11 +420,11 @@
                          :in-bus-ctr b4th_beat-cnt-bus
                          :outbus cbus2 ))
 
-(ctl snareBufReader :beat-buf buffer-64-1 :in-bus-ctr b4th_beat-cnt-bus)
+(ctl snareBufReader :beat-buf buffer-256-1 :in-bus-ctr b4th_beat-cnt-bus)
 
 (pp-node-tree)
 
-(ctl snareBufReader :del 0.0)
+(ctl snareBufReader :del 0.00)
 
 (kill snareBufReader)
 
@@ -408,7 +449,7 @@
 
 (ctl snare1 :amp 1.00 :attack 0.01 :sustain 0.02 :release 0.1 )
 
-(ctl snare1 :amp 0.15 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 10)
+(ctl snare1 :amp 0.35 :attack 0.01 :sustain 0.02 :release 0.1 :cutoff 10)
 
 (kill snare)
 
@@ -428,9 +469,24 @@
 
 
 (buffer-write! buffer-32-3 [0 0 0 0 1 1 0 0
-                            0 0 0 0 1 0 0 0
-                            0 0 0 0 1 0 0 0
+                            1 0 0 0 1 0 0 0
+                            1 0 0 0 1 0 0 0
                             0 0 0 0 1 0 0 0])
+
+
+
+(buffer-write! buffer-32-3 [0 0 0 0 1 0 0 0
+                            1 0 0 0 0 0 0 0
+                            1 0 0 0 0 0 0 0
+                            0 0 0 0 1 0 0 0])
+
+
+;Hapsiainen tb303
+
+(buffer-write! buffer-32-3 [1 0 1 0 1 0 1 0
+                            1 0 1 0 1 0 1 0
+                            1 0 1 0 1 0 1 0
+                            1 0 1 0 1 0 1 0])
 
 
 
@@ -465,10 +521,10 @@
                             8 1 0 1 2 8 10 6])
 
 
-(buffer-write! buffer-32-4 [0 1 1 4 0 4 0 4
-                            0 1 1 4 0 4 0 4
-                            0 1 1 4 0 4 0 4
-                            0 1 1 4 0 4 0 4])
+(buffer-write! buffer-32-4 [0 1 1 2 0 2 0 2
+                            0 1 1 2 0 2 0 2
+                            0 1 1 2 0 2 0 2
+                            0 1 1 2 0 2 0 2])
 
 
 (buffer-write! buffer-32-4 [4 4 5 4 4 4 0 4
@@ -555,8 +611,9 @@
 
 (control-bus-get mcbus3)
 
+;Hapsiainen
 (ctl tbBufReader :in-trg-bus b4th_beat-trg-bus
-     :in-bus-ctr b4th_beat-cnt-bus)
+     :in-bus-ctr b4th_beat-cnt-bus :beat-buf buffer-32-3)
 
 (ctl noteBufReader :in-trg-bus b32th_beat-trg-bus
      :in-bus-ctr b32th_beat-cnt-bus)
@@ -610,8 +667,8 @@
 (ctl tb :attack 0.01 :sustain 1.0101 :release 0.3 :decay 0.11
      :amp 1 :cutoff 1500 :env-amount 0.001)
 
-(ctl tb :attack 0.001 :sustain 0.0101 :release 0.2 :decay 0.01
-     :amp 1 :cutoff 150 :env-amount 0.01)
+(ctl tb :attack 0.001 :sustain 1.101 :release 1.6 :decay 0.01
+     :amp 0.6 :cutoff 100 :env-amount 0.01)
 
 (kill tb)
 
@@ -658,7 +715,7 @@
          ; _          (out:kr ctrl-output ctrl-amp-env)
           f-env      (env-gen (adsr fattack fdecay fsustain frelease) :gate gate)
           ctrl-f-env (env-gen:kr (adsr fattack fdecay fsustain frelease) :gate gate)
-          _          (out:kr ctrl-output (* freq1 ctrl-f-env))
+          _          (out:kr ctrl-output (* ctrl-f-env))
           s1         (* osc1-level (select osc1 osc-bank-1))
           s2         (* osc2-level (select osc2 osc-bank-2))
           s3         (* osc3-level (select osc3 osc-bank-3))
@@ -853,11 +910,11 @@ beat-cnt-bus-atom_1
                                         ;(t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.1) )
 
  ; (t/set-fixed-buffer-index 1 :ff (nth (control-bus-get cbus32) 0))
-   (t/set-fixed-buffer-index 1 :inc)
-(t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.01) )
-(t/set-dataArray-item 1 (+ (nth (control-bus-get vcbus2) 0) 0.01) )
-(t/set-dataArray-item 2 (+ (nth (control-bus-get vcbus3) 0) 0.01) )
-(t/set-dataArray-item 3 (+ (nth (control-bus-get vcbus4) 0) 0.0021) )
+                                      (t/set-fixed-buffer-index 1 :inc)
+                                      (t/set-dataArray-item 0 (+ (nth (control-bus-get vcbus1) 0) 0.01) )
+                                      (t/set-dataArray-item 1 (+ (nth (control-bus-get vcbus2) 0) 0.01) )
+                                      (t/set-dataArray-item 2 (+ (nth (control-bus-get vcbus3) 0) 0.01) )
+                                      (t/set-dataArray-item 3 (+ (nth (control-bus-get vcbus4) 0) 0.0021) )
                                       (t/set-dataArray-item 5 (+ (nth (control-bus-get cbus6) 0) 0.1) )
 
 
@@ -888,7 +945,7 @@ beat-cnt-bus-atom_1
 
 
 ;Tvshop 2 frames: 1100, 4100, 15100,20500,  25100
-(t/bufferSection 4 0 2000)
+(t/bufferSection 4 0 20000)
 
 (t/set-video-fixed 4 :fw)
 
@@ -919,3 +976,5 @@ beat-cnt-bus-atom_1
 (remove-watch beat-cnt-bus-atom_1 :cnt)
 
 (keys (:watches (bean beat-cnt-bus-atom_1)))
+
+(stop)
