@@ -204,14 +204,14 @@
  (pp-node-tree)
 ;(kill 247)
 
- (buffer-write! buffer-64-1 [1 0 0 0 2 0 0 0
-                             1 0 0 0 4 0 0 0
-                             1 0 0 0 0 0 0 0
-                             1 0 0 0 0 0 0 0
-                             1 0 0 0 0 0 0 0
-                             1 0 0 0 0 0 0 0
-                             1 0 0 0 2 0 0 0
-                             3 0 3 0 5 0 0 0])
+ (buffer-write! buffer-64-1 [1 2 6 1 2 2 3 5
+                             1 2 3 1 4 2 2 1
+                             1 2 6 1 2 2 3 5
+                             1 2 3 1 4 2 1 1
+                             1 2 6 1 2 2 3 5
+                             1 2 3 1 4 2 2 1
+                             1 2 6 1 2 2 3 5
+                             3 2 3 4 6 7 5 1])
 
 (buffer-write! buffer-64-1 [2 0 0 0 2 0 0 0
                              2 0 0 0 2 0 0 0
@@ -290,7 +290,7 @@
 (ctl kickBufReader
      :beat-buf buffer-64-1
      :in-trg-bus b4th_beat-trg-bus
-     :in-bus-ctr b4th_beat-cnt-bus)
+     :in-bus-ctr b8th_beat-cnt-bus)
 
                                         ;Hapsiainen
 
@@ -916,36 +916,39 @@ beat-cnt-bus-atom_1
                                       (t/set-dataArray-item 2 (+ (nth (control-bus-get vcbus3) 0) 0.01) )
                                       (t/set-dataArray-item 3 (+ (nth (control-bus-get vcbus4) 0) 0.0021) )
                                       (t/set-dataArray-item 5 (+ (nth (control-bus-get cbus6) 0) 0.1) )
+                                      ))
 
-
-                                     ))
-
-(t/start "./b12.glsl" :width 1920 :height 1080 :cams [0 3] :videos ["../videos/jkl.mp4" "../videos/spede.mp4"  "../videos/uni.mp4" "../videos/hapsiainen_good.mp4" "../videos/tvshop2_good.mp4"])
+;ääniaalto 9_3_2019 videot
+(t/start "./b12.glsl" :width 1920 :height 1080 :cams [0] :videos ["../videos/uni_fixed.mp4" "../videos/Siivolöf.mp4"])
 
 ;Spede: 5100
 
-(t/bufferSection 0 0 5100)
+;Sihvolöf: 470,7000, 10800
+(t/bufferSection 1 0 470)
+
+(t/set-video-fixed 1 :fw)
+
+;ääniaalto 6400, 6800, 13100
+(t/bufferSection 0 0 13100)
+
+(t/set-active-buffer-video 0 0)
 
 (t/set-video-fixed 0 :fw)
 
 
-(t/bufferSection 1 0 51000)
-
-(t/set-video-fixed 1 :fw)
-
-
-(t/bufferSection 2 0 6500)
-
-(t/set-video-fixed 2 :fw)
-
+(t/set-video-play 0)
 
 (t/bufferSection 3 0 300)
 
-(t/set-video-fixed 3 :fw)
+(t/set-video-fixed 3 :bw)
 
 
 ;Tvshop 2 frames: 1100, 4100, 15100,20500,  25100
-(t/bufferSection 4 0 20000)
+(t/bufferSection 4 0 20100)
+
+(t/bufferSection 4 1 20440)
+
+(t/set-active-buffer-video 4 0)
 
 (t/set-video-fixed 4 :fw)
 

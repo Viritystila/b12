@@ -134,7 +134,7 @@ void main(void){
   float it5=iDataArray[5];
   vec2 uv = (gl_FragCoord.xy / iResolution.xy);
 
-  vec2 uv_noise=noiseUV(uv, it0, it3);
+  vec2 uv_noise=noiseUV(uv, it0, it0);
 
   vec2 uvi=uv;
   uv.y=1.0-uv.y;
@@ -172,19 +172,23 @@ void main(void){
 
   vec4 pf = texture2D(iPreviousFrame, uvi);
 
-        vec4 glitchText=glitch(uv_noise, uv,  v2, v1, it0/2, iVideo0, iVideo1);
+        vec4 glitchText=glitch(uv_noise, uv,  v1, v0, it1/60, iVideo0, iVideo1);
 
-        vec4 bgVid=mix(v0, pf, 0);
+        vec4 bgVid=mix(v3, pf, 0);
 
- vec4 cf8=waveColors(v0, uv, it0, 10, 0.021, 10);
+
+ vec4 cf8=waveColors(v3, uv, it0, 10, 0.11, 10);
     //color key
 
-  vec4 bg=mix(bgVid, cf8, it0);
-  vec4 fg=v1; //glitchText //v1;
+ vec4 bg=pf;//mix(pf, cf8, 0);
+  vec4 fg=v4d; //glitchText //v1;
+
+  fg=blackRemoval(fg, bg, 0.01, it0);
 
 
     vec4 cf6=chromaKey(fg, bg);
-
-    gl_FragColor =cf6;//glitchText;//mix(pf, cf6, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
+    //glitchtexh + pf, it0/4.6 Siivolöf
+    vec4 siivobg=mix(v1, glitchText, 0);
+    gl_FragColor= mix(siivobg, pf, it0/4.5);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
 
 }
