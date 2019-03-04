@@ -204,6 +204,7 @@
  (pp-node-tree)
 ;(kill 247)
 
+;siivolöf
  (buffer-write! buffer-64-1 [1 2 6 1 2 2 3 5
                              1 2 3 1 4 2 2 1
                              1 2 6 1 2 2 3 5
@@ -211,26 +212,38 @@
                              1 2 6 1 2 2 3 5
                              1 2 3 1 4 2 2 1
                              1 2 6 1 2 2 3 5
-                             3 2 3 4 6 7 5 1])
-
-(buffer-write! buffer-64-1 [2 0 0 0 2 0 0 0
-                             2 0 0 0 2 0 0 0
-                             2 0 0 0 2 0 0 0
-                             2 0 0 0 2 0 0 0
-                             2 0 0 0 2 0 0 0
-                             2 0 0 0 2 0 0 0
-                             2 0 0 0 1 0 0 0
-                             2 0 2 0 4 0 0 0])
+                             3 2 3 4 6 7 5 0])
 
 
-(buffer-write! buffer-64-1 [ 2 0 0 0 0 0 0 0
-                             0 0 0 0 0 0 0 0
-                             0 0 0 0 0 0 0 0
-                             0 0 0 0 0 0 0 0
-                             0 0 0 0 0 0 0 0
-                             0 0 0 0 0 0 0 0
+;siivolöf
+ (buffer-write! buffer-64-1 [6 1 3 1 2 2 3 2
+                             5 2 3 1 4 2 2 1
+                             6 2 3 1 2 2 3 2
+                             5 2 3 1 4 2 1 1
+                             6 2 3 1 2 2 3 2
+                             5 2 3 1 4 2 2 1
+                             6 2 3 1 2 2 3 2
+                             3 2 3 4 5 6 5 1])
+
+
+(buffer-write! buffer-64-1 [ 2 0 0 0 2 0 0 0
                              2 0 0 0 2 0 0 0
-                             1.2 0 0 1.1 0 0 0 0])
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 0 0 2 0 0 0
+                             2 0 3 0 4 0 0 0])
+
+
+(buffer-write! buffer-64-1 [ 2 0 2 0 0 0 0 0
+                             2 0 0 0 2 0 0 0
+                             3 0 4 0 0 0 0 0
+                             3 0 0 0 5 0 0 0
+                             2 0 0 0 0 0 0 0
+                             3 0 0 0 0 0 0 0
+                             4 0 0 0 0 0 0 0
+                             5 0 0 0 0 0 0 0])
 
 
 (buffer-write! buffer-256-1 [2 0 2 0 2 0 0 0
@@ -378,7 +391,7 @@
 
 
 ;uni
-(ctl k1 :freq 40 :amp 0.7 :amp_output 1
+(ctl k1 :freq 40 :amp 0.5 :amp_output 1
      :v1 0.1 :v2 0.01 :v3 0.01
      :c1 -20 :c2 -8 :c3 -8
      :d1 2 :d2 2 :d3 0.5
@@ -742,10 +755,10 @@
 
 
 
-(buffer-write! buffer-32-6 [1 0 1 0 5 0 0 0
-                            1 0 1 0 1 0 1 0
-                            1 0 1 0 1 0 1 0
-                            1 0 1 0 5 0 0 0])
+(buffer-write! buffer-32-6 [1 4 1 1 5 1 1 1
+                            1 1 1 1 3 1 1 1
+                            1 2 1 2 3 1 1 1
+                            1 4 1 2 5 1 1 1])
 
 
 (buffer-write! buffer-32-6 [1 1 -1 1 1 -1 1 1
@@ -755,9 +768,9 @@
 
 
 
-(buffer-write! buffer-32-7 [14 4 4 1 8 8 2 1
+(buffer-write! buffer-32-7 [4 4 4 1 8 8 2 1
                             1 1 1 1 1 1 1 1
-                            12 12 8 1 12 12 12 1
+                            8 8 8 1 8 8 8 1
                             1 1 1 1 1 1 1 1])
 
 
@@ -769,7 +782,7 @@
                          :outbus cbus5))
 
 (ctl vbBufReader :in-trg-bus b8th_beat-trg-bus
-     :in-bus-ctr b8th_beat-cnt-bus)
+     :in-bus-ctr b16th_beat-cnt-bus)
 
 
 (def bassNoteBufReader (noteBufferReader  [:tail early-g]   :chord-buf  buffer-32-2
@@ -780,12 +793,13 @@
 (kill bassNoteBufReader)
 
 (control-bus-get cbus6)
-  (defsynth vintage-bass
+  (defsynth bassg
     [beat-control-bus 0
      note-bus 0
      velocity 80
      amp 1
-     del 0]
+     del 0
+     control-output 0]
     (let [freqs_in   (in:kr note-bus)
           gate       (in:kr beat-control-bus)
           freq       freqs_in
@@ -797,6 +811,8 @@
           sqz      (* 0.3 (pulse [sub-freq (- sub-freq 1)]))
           mixed    (* 5 (+ sawz1 sawz2 sqz))
           env      (env-gen (adsr (* adj 0.1) (* 1 3.3) 0.4 0.8) :gate gate)
+          env-ctrl (env-gen:kr (adsr (* adj 0.1) (* 1 3.3) 0.4 0.8) :gate gate)
+          _        (out:kr control-output env-ctrl)
           filt   (* env (moog-ff mixed (* velocity env (+ freq 200)) 2.2))]
 
       (out 0 (* amp filt))))
@@ -804,9 +820,9 @@
 
 
 
-(def vb (vintage-bass  [:tail early-g] :beat-control-bus  cbus5 :note-bus cbus6))
+(def vb (bassg  [:tail early-g] :beat-control-bus  cbus5 :note-bus cbus6 :control-output vcbus5))
 
-(ctl vb :amp 1.0  :velocity 10000)
+(ctl vb :amp 1.0  :velocity 2000)
 
 (kill vb)
 
@@ -886,7 +902,7 @@
 
 (foo)
 
-(control-bus-get vcbus2)
+(control-bus-get vcbus5)
 
 (pp-node-tree)
 
@@ -915,25 +931,32 @@ beat-cnt-bus-atom_1
                                       (t/set-dataArray-item 1 (+ (nth (control-bus-get vcbus2) 0) 0.01) )
                                       (t/set-dataArray-item 2 (+ (nth (control-bus-get vcbus3) 0) 0.01) )
                                       (t/set-dataArray-item 3 (+ (nth (control-bus-get vcbus4) 0) 0.0021) )
+                                      (t/set-dataArray-item 4 (+ (nth (control-bus-get vcbus5) 0) 0.0021) )
                                       (t/set-dataArray-item 5 (+ (nth (control-bus-get cbus6) 0) 0.1) )
                                       ))
 
-;ääniaalto 9_3_2019 videot
-(t/start "./b12.glsl" :width 1920 :height 1080 :cams [0] :videos ["../videos/uni_fixed.mp4" "../videos/Siivolöf.mp4"])
+                                        ;ääniaalto 9_3_2019 videot
+(do
+  (t/start "./b12.glsl" :width 1920 :height 1080 :cams [0] :videos ["../videos/uni_fixed.mp4" "../videos/Siivolöf.mp4"])
 
-;Spede: 5100
+                                        ;Spede: 5100
 
-;Sihvolöf: 470,7000, 10800
-(t/bufferSection 1 0 470)
+                                        ;Sihvolöf: 470,7000, 10800
+  (t/set-video-play 1)
 
-(t/set-video-fixed 1 :fw)
+  (t/bufferSection 1 0 470)
 
-;ääniaalto 6400, 6800, 13100
-(t/bufferSection 0 0 13100)
+  (t/set-video-fixed 1 :fw)
 
-(t/set-active-buffer-video 0 0)
+  )
 
-(t/set-video-fixed 0 :fw)
+(do
+                                        ;ääniaalto 6400, 6800, 13100
+  (t/bufferSection 0 0 6400)
+
+  (t/set-active-buffer-video 0 0)
+
+  (t/set-video-fixed 0 :fw))
 
 
 (t/set-video-play 0)

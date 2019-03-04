@@ -9,16 +9,16 @@ uniform float outt;
 vec2 distortUV(vec2 uv, vec2 nUV, sampler2D nstex ,  float ip1)
 {
   vec2 uv_orig=uv;
-  float intensity = 0.1*ip1;
+  float intensity = 0.5*ip1;
   float scale = 0.05;//*ip1;
-  float speed = 0.6*ip1;
+  float speed = 0.00006;//*ip1;
 
 
     nUV.x += sin((iGlobalTime))*speed+2*ip1;
     nUV.y += sin(iGlobalTime)*speed ;
     vec2 noise= texture(nstex, nUV*scale).xy;
 
-    uv += ((-1.0+noise*2));// * intensity;
+    uv += ((-1.0+noise*2))* intensity;
 
     return mix(uv, uv_orig, 0);;
 }
@@ -131,6 +131,7 @@ void main(void){
   float it1=iDataArray[1];
   float it2=iDataArray[2];
   float it3=iDataArray[3];
+  float it4=iDataArray[4];
   float it5=iDataArray[5];
   vec2 uv = (gl_FragCoord.xy / iResolution.xy);
 
@@ -138,7 +139,7 @@ void main(void){
 
   vec2 uvi=uv;
   uv.y=1.0-uv.y;
-  vec2 dsUV=distortUV(uv, uv, iVideo4, it0);
+  vec2 dsUV=distortUV(uv, uv, iCam0, it0);
 
   vec4 t0 = texture2D(iChannel0,uv);
 
@@ -180,15 +181,15 @@ void main(void){
  vec4 cf8=waveColors(v3, uv, it0, 10, 0.11, 10);
     //color key
 
- vec4 bg=pf;//mix(pf, cf8, 0);
-  vec4 fg=v4d; //glitchText //v1;
+ vec4 bg=v1;//mix(pf, cf8, 0);
+  vec4 fg=v0; //glitchText //v1;
 
-  fg=blackRemoval(fg, bg, 0.01, it0);
+  fg=blackRemoval(fg, bg, 0.01, 1000*it4);
 
 
     vec4 cf6=chromaKey(fg, bg);
     //glitchtexh + pf, it0/4.6 Siivolöf
-    vec4 siivobg=mix(v1, glitchText, 0);
-    gl_FragColor= mix(siivobg, pf, it0/4.5);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
+    vec4 siivobg=mix(v1, v0, 0*it4*8);
+    gl_FragColor= mix(siivobg, pf, sqrt(it0)/1.25);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
 
 }
