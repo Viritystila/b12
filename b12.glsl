@@ -189,7 +189,8 @@ void main(void){
 
     vec4 cf6=chromaKey(fg, bg);
     //glitchtexh + pf, it0/4.6 Siivolöf
-    vec4 siivobg=mix(v1, v0, 0*it4*8);
-    gl_FragColor= mix(siivobg, pf, sqrt(it0)/1.25);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
+    vec4 siivobg=mix(v1, v0, 1*it0);
+    vec4 codv=mix(siivobg, c1, it0/2);
+    gl_FragColor= mix(codv, pf, sqrt(it0)/2.025);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
 
 }

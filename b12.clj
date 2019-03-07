@@ -521,7 +521,7 @@
                             1 1 1 3 1 1 1 1])
 
 
-
+;Äääniaalto 2
 (buffer-write! buffer-32-4 [1 1 1 5 4 3 3 1
                             8 2 1 2 1 2 2 2
                             12 2 1 2 1 2 0 4
@@ -533,18 +533,19 @@
                             1 2 1 2 3 2 0 4
                             8 1 0 1 2 8 10 6])
 
-
+; ääniaalto 1
 (buffer-write! buffer-32-4 [0 1 1 2 0 2 0 2
                             0 1 1 2 0 2 0 2
                             0 1 1 2 0 2 0 2
                             0 1 1 2 0 2 0 2])
 
+;Ääniaalto 2
+(buffer-write! buffer-32-4 [1 2 5 2 4 4 0 4
+                            1 2 5 2 4 4 0 4
+                            1 3 5 2 4 4 0 4
+                            1 2 5 2 4 4 0 4])
 
-(buffer-write! buffer-32-4 [4 4 5 4 4 4 0 4
-                            4 4 5 4 4 4 0 4
-                            4 4 5 4 4 4 0 4
-                            4 4 5 4 4 4 0 4])
-
+                                        ;ääniaalto 3
 
 (buffer-write! buffer-32-4 [18 17 16 14 13 12 10 9
                             8 6 5 4 2 1 0 1
@@ -853,14 +854,15 @@
         output (- output input)
         output (leak-dc:ar (* output leak))
         output (lpf output cutoff)
-        _      (out:kr ctrl-output freq)]
+        opctr  (a2k output)
+        _      (out:kr ctrl-output (* freq 1))]
     (out out-bus (pan2  (* amp output)))))
 
-(odoc lpf)
+(odoc a2k)
 
 (def ss1 (supersaw :note-bus cbus4 :gate-bus 1 :outbus 0 :ctrl-output vcbus2 :leak 0.25 :amp 0.2))
 
-(ctl ss1 :amp 1 :leak 0.25 :note-bus cbus4 :cutoff 200)
+(ctl ss1 :amp 1 :leak 0.25 :note-bus cbus4 :cutoff 100)
 
 (kill ss1)
 
@@ -868,7 +870,7 @@
 
 (kill 115)
 
-(control-bus-get cbus4)
+(control-bus-get vcbus2)
 
 
 
@@ -937,7 +939,7 @@ beat-cnt-bus-atom_1
 
                                         ;ääniaalto 9_3_2019 videot
 (do
-  (t/start "./b12.glsl" :width 1920 :height 1080 :cams [0] :videos ["../videos/uni_fixed.mp4" "../videos/Siivolöf.mp4"])
+  (t/start "./b12.glsl" :width 1920 :height 1080 :cams [0 1] :videos ["../videos/uni_fixed.mp4" "../videos/Siivolöf.mp4"])
 
                                         ;Spede: 5100
 
@@ -956,7 +958,9 @@ beat-cnt-bus-atom_1
 
   (t/set-active-buffer-video 0 0)
 
-  (t/set-video-fixed 0 :fw))
+  (t/set-video-fixed 0 :fw)
+
+  )
 
 
 (t/set-video-play 0)
