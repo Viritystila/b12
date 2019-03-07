@@ -390,12 +390,26 @@
      :f1 80 :f2 30 :f3 80)
 
 
-;uni
-(ctl k1 :freq 40 :amp 0.5 :amp_output 1
+                                        ;uni
+
+
+(def k1 (kick :beat-control-bus cbus1 :outbus 0
+              :video-control-bus vcbus1
+              :freq 40 :amp 0.3 :amp_output 1
+              :v1 0.1 :v2 0.01 :v3 0.01
+              :c1 -20 :c2 -8 :c3 -8
+              :d1 2 :d2 2 :d3 0.5
+              :f1 20 :f2 20 :f3 20))
+
+
+(ctl k1 :freq 40 :amp 0.3 :amp_output 1
      :v1 0.1 :v2 0.01 :v3 0.01
      :c1 -20 :c2 -8 :c3 -8
      :d1 2 :d2 2 :d3 0.5
      :f1 20 :f2 20 :f3 20)
+
+
+(kill k1)
 
 ;Hapsiainen
 (ctl k1 :freq 180 :amp 0.5 :amp_output 1
@@ -540,9 +554,9 @@
                             0 1 1 2 0 2 0 2])
 
 ;Ääniaalto 2
-(buffer-write! buffer-32-4 [1 2 5 2 4 4 0 4
+(buffer-write! buffer-32-4 [1 2 5 2 4 4 4 4
+                            1 1 1 1 2 2 2 2
                             1 2 5 2 4 4 0 4
-                            1 3 5 2 4 4 0 4
                             1 2 5 2 4 4 0 4])
 
                                         ;ääniaalto 3
@@ -612,7 +626,7 @@
                                        :in-bus-ctr b4th_beat-cnt-bus
                                        :outbus     cbus4))
 
-(ctl noteBufReader :idx-buf buffer-32-4)
+(ctl noteBufReader :idx-buf buffer-64-3)
 
 (def chordBufReader (chordBufferReader :chord-buf  buffer-32-2
                                        :idx-buf    buffer-32-5
@@ -997,7 +1011,7 @@ beat-cnt-bus-atom_1
 
 (t/set-video-frame-limits 1  51000 52000)
 
-(t/toggle-recording "/dev/video1")
+(t/toggle-recording "/dev/video4")
 
 (control-bus-get b1st_beat-cnt-bus)
 
@@ -1006,5 +1020,7 @@ beat-cnt-bus-atom_1
 (remove-watch beat-cnt-bus-atom_1 :cnt)
 
 (keys (:watches (bean beat-cnt-bus-atom_1)))
+
+(t/stop)
 
 (stop)
